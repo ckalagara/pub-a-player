@@ -3,6 +3,7 @@ module github.com/ckalagara/pub-a-player
 go 1.25.1
 
 require (
+	github.com/pkg/errors v0.9.1
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.0
 )

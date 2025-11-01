@@ -2,18 +2,21 @@ package core
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ckalagara/pub-a-player/commons"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
 type store interface {
-	Get(ctx context.Context, field, value string) (string, error)
+	Get(ctx context.Context, field, value string) (Player, error)
 	Update(ctx context.Context, p Player) error
 	Shutdown(ctx context.Context) error
 	Health(ctx context.Context) error
 }
 
-func newStorePostgres(ctx context.Context, db *gorm.DB) store {
+func newStorePostgres(_ context.Context, db *gorm.DB) store {
 	return &storePostgresImpl{
 		client: db,
 	}
@@ -24,21 +27,47 @@ type storePostgresImpl struct {
 }
 
 func (s storePostgresImpl) Shutdown(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
+	uClient, err := s.client.WithContext(ctx).DB()
+	if err != nil {
+		return err
+	}
+	return uClient.Close()
 }
 
 func (s storePostgresImpl) Health(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
+	uClient, err := s.client.WithContext(ctx).DB()
+	if err != nil {
+		return err
+	}
+	return uClient.Ping()
 }
 
-func (s storePostgresImpl) Get(ctx context.Context, field, value string) (string, error) {
-	//TODO implement me
-	panic("implement me")
+func (s storePostgresImpl) Get(ctx context.Context, field, value string) (Player, error) {
+	var p Player
+	err := s.client.WithContext(ctx).Where(fmt.Sprintf(qryByField, field), value).First(&p).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return Player{}, errors.Wrap(commons.ErrPlayerNotFound, err.Error())
+		}
+		return Player{}, err
+	}
+	return p, nil
 }
 
 func (s storePostgresImpl) Update(ctx context.Context, p Player) error {
-	//TODO implement me
-	panic("implement me")
+	r := s.client.WithContext(ctx).Model(&Player{}).Where(fmt.Sprintf(qryByField, "email"), p.Email).Updates(p)
+
+	if r.Error != nil {
+		return r.Error
+	}
+
+	if r.RowsAffected == 0 {
+		return errors.Wrap(commons.ErrPlayerNotFound, fmt.Sprintf("record not found for email %s", p.Email))
+	}
+
+	return nil
 }
+
+const (
+	qryByField = "%s = ?"
+)
