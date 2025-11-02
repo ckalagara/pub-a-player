@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Main() {
+func main() {
 	ctxMain := context.Background()
 
 	// create db client
@@ -21,6 +21,7 @@ func Main() {
 	if err != nil {
 		log.Fatal("Failed to create db client", err)
 	}
+	log.Println("Connected to db")
 
 	// create handler
 	h := core.NewHandler(ctxMain, db)
@@ -57,10 +58,8 @@ func createDBClient() (*gorm.DB, error) {
 }
 
 func startServer(ctx context.Context, h core.Handler) {
-	mux := http.NewServeMux()
-	mux.Handle(APIPathPrefix, http.StripPrefix(APIPathPrefix, appMux(ctx, h)))
-
-	err := http.ListenAndServe(":8086", mux)
+	log.Println("Listening on port")
+	err := http.ListenAndServe(":8086", appMux(ctx, h))
 	if err != nil {
 		log.Fatal("Failed to serve", err)
 	}
@@ -86,6 +85,6 @@ func appMux(ctx context.Context, h core.Handler) *http.ServeMux {
 }
 
 const (
-	DBConnFormat  = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable"
-	APIPathPrefix = "/v1/api/"
+	DBConnFormat = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable"
+	// APIPathPrefix = "/v1/api"
 )

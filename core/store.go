@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/ckalagara/pub-a-player/commons"
 	"github.com/pkg/errors"
@@ -17,6 +18,11 @@ type store interface {
 }
 
 func newStorePostgres(_ context.Context, db *gorm.DB) store {
+	err := db.AutoMigrate(&Player{})
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 	return &storePostgresImpl{
 		client: db,
 	}
@@ -62,7 +68,8 @@ func (s storePostgresImpl) Update(ctx context.Context, p Player) error {
 	}
 
 	if r.RowsAffected == 0 {
-		return errors.Wrap(commons.ErrPlayerNotFound, fmt.Sprintf("record not found for email %s", p.Email))
+		err := s.client.WithContext(ctx).Create(&p).Error
+		return errors.Wrap(err, fmt.Sprintf("failed to create record for email %s", p.Email))
 	}
 
 	return nil
