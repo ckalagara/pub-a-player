@@ -13,11 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	DBConnFormat  = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable"
-	APIPathPrefix = "/v1/api/"
-)
-
 func Main() {
 	ctxMain := context.Background()
 
@@ -89,3 +84,8 @@ func appMux(ctx context.Context, h core.Handler) *http.ServeMux {
 
 	return mux
 }
+
+const (
+	DBConnFormat  = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable"
+	APIPathPrefix = "/v1/api/"
+)
