@@ -40,7 +40,7 @@ func (s storePostgresImpl) Upload(ctx context.Context, upload *Upload) error {
 
 func (s storePostgresImpl) Download(ctx context.Context, email, uploadType, filename string) (*Upload, error) {
 	var upload Upload
-	err := s.client.WithContext(ctx).Where("email = ? AND upload_type = ? AND filename = ?", email, uploadType, filename).First(&upload).Error
+	err := s.client.WithContext(ctx).Where(qryAttachment, email, uploadType, filename).First(&upload).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -96,5 +96,6 @@ func (s storePostgresImpl) Update(ctx context.Context, p Player) error {
 }
 
 const (
-	qryByField = "%s = ?"
+	qryByField    = "%s = ?"
+	qryAttachment = "email = ? AND upload_type = ? AND filename = ?"
 )
