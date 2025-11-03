@@ -38,6 +38,52 @@ func (_m *MockHandler) EXPECT() *MockHandler_Expecter {
 	return &MockHandler_Expecter{mock: &_m.Mock}
 }
 
+// DownloadAttachment provides a mock function for the type MockHandler
+func (_mock *MockHandler) DownloadAttachment(responseWriter http.ResponseWriter, request *http.Request) {
+	_mock.Called(responseWriter, request)
+	return
+}
+
+// MockHandler_DownloadAttachment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DownloadAttachment'
+type MockHandler_DownloadAttachment_Call struct {
+	*mock.Call
+}
+
+// DownloadAttachment is a helper method to define mock.On call
+//   - responseWriter http.ResponseWriter
+//   - request *http.Request
+func (_e *MockHandler_Expecter) DownloadAttachment(responseWriter interface{}, request interface{}) *MockHandler_DownloadAttachment_Call {
+	return &MockHandler_DownloadAttachment_Call{Call: _e.mock.On("DownloadAttachment", responseWriter, request)}
+}
+
+func (_c *MockHandler_DownloadAttachment_Call) Run(run func(responseWriter http.ResponseWriter, request *http.Request)) *MockHandler_DownloadAttachment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 http.ResponseWriter
+		if args[0] != nil {
+			arg0 = args[0].(http.ResponseWriter)
+		}
+		var arg1 *http.Request
+		if args[1] != nil {
+			arg1 = args[1].(*http.Request)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockHandler_DownloadAttachment_Call) Return() *MockHandler_DownloadAttachment_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockHandler_DownloadAttachment_Call) RunAndReturn(run func(responseWriter http.ResponseWriter, request *http.Request)) *MockHandler_DownloadAttachment_Call {
+	_c.Run(run)
+	return _c
+}
+
 // GetPlayer provides a mock function for the type MockHandler
 func (_mock *MockHandler) GetPlayer(responseWriter http.ResponseWriter, request *http.Request) {
 	_mock.Called(responseWriter, request)
@@ -305,6 +351,86 @@ func (_m *mockstore) EXPECT() *mockstore_Expecter {
 	return &mockstore_Expecter{mock: &_m.Mock}
 }
 
+// Download provides a mock function for the type mockstore
+func (_mock *mockstore) Download(ctx context.Context, email string, uploadType string, filename string) (*Upload, error) {
+	ret := _mock.Called(ctx, email, uploadType, filename)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Download")
+	}
+
+	var r0 *Upload
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) (*Upload, error)); ok {
+		return returnFunc(ctx, email, uploadType, filename)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) *Upload); ok {
+		r0 = returnFunc(ctx, email, uploadType, filename)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Upload)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
+		r1 = returnFunc(ctx, email, uploadType, filename)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// mockstore_Download_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Download'
+type mockstore_Download_Call struct {
+	*mock.Call
+}
+
+// Download is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+//   - uploadType string
+//   - filename string
+func (_e *mockstore_Expecter) Download(ctx interface{}, email interface{}, uploadType interface{}, filename interface{}) *mockstore_Download_Call {
+	return &mockstore_Download_Call{Call: _e.mock.On("Download", ctx, email, uploadType, filename)}
+}
+
+func (_c *mockstore_Download_Call) Run(run func(ctx context.Context, email string, uploadType string, filename string)) *mockstore_Download_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *mockstore_Download_Call) Return(upload *Upload, err error) *mockstore_Download_Call {
+	_c.Call.Return(upload, err)
+	return _c
+}
+
+func (_c *mockstore_Download_Call) RunAndReturn(run func(ctx context.Context, email string, uploadType string, filename string) (*Upload, error)) *mockstore_Download_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function for the type mockstore
 func (_mock *mockstore) Get(ctx context.Context, field string, value string) (Player, error) {
 	ret := _mock.Called(ctx, field, value)
@@ -532,6 +658,63 @@ func (_c *mockstore_Update_Call) Return(err error) *mockstore_Update_Call {
 }
 
 func (_c *mockstore_Update_Call) RunAndReturn(run func(ctx context.Context, p Player) error) *mockstore_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Upload provides a mock function for the type mockstore
+func (_mock *mockstore) Upload(ctx context.Context, upload *Upload) error {
+	ret := _mock.Called(ctx, upload)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Upload")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *Upload) error); ok {
+		r0 = returnFunc(ctx, upload)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// mockstore_Upload_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Upload'
+type mockstore_Upload_Call struct {
+	*mock.Call
+}
+
+// Upload is a helper method to define mock.On call
+//   - ctx context.Context
+//   - upload *Upload
+func (_e *mockstore_Expecter) Upload(ctx interface{}, upload interface{}) *mockstore_Upload_Call {
+	return &mockstore_Upload_Call{Call: _e.mock.On("Upload", ctx, upload)}
+}
+
+func (_c *mockstore_Upload_Call) Run(run func(ctx context.Context, upload *Upload)) *mockstore_Upload_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *Upload
+		if args[1] != nil {
+			arg1 = args[1].(*Upload)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *mockstore_Upload_Call) Return(err error) *mockstore_Upload_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *mockstore_Upload_Call) RunAndReturn(run func(ctx context.Context, upload *Upload) error) *mockstore_Upload_Call {
 	_c.Call.Return(run)
 	return _c
 }
