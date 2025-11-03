@@ -29,14 +29,14 @@ Note: Unnecessary use of -X or --request, GET is already inferred.
 
 ### Player
 
-#### READ Player
+#### Read Player
 ```curl
 % curl --location --request GET 'http://localhost:8086/player' \
 --header 'x-pub-email: johndoe@example.com'
 {"ID":1,"UUID":"2ba4396d-8b2d-4e18-aeeb-45d29790b6c7","Name":"John Doe","Email":"johndoe@example.com","Age":29,"Team":"Warriors","Score":1500.75,"CreatedAt":"2025-11-02T02:56:19.198435Z","UpdatedAt":"2025-11-02T02:57:59.612846Z","DeletedAt":null}
 ```
 
-#### UPDATE Player
+#### Update Player
 ```
 curl --location --request POST 'http://localhost:8086/player' \
 --header 'Content-Type: application/json' \
@@ -48,8 +48,8 @@ curl --location --request POST 'http://localhost:8086/player' \
   "score": 1500.75
 }'
 ```
-
-#### UPLOAD
+### Attachment
+#### Upload
 
 ```curl
 curl --location --request POST 'http://localhost:8086/attachment' \
@@ -63,7 +63,7 @@ curl --location --request POST 'http://localhost:8086/attachment' \
 }
 ```
 
-#### DOWNLOAD
+#### Download
 
 ```curl
  % curl --location --request GET 'http://localhost:8086/attachment' \
