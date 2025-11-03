@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -17,6 +18,7 @@ type Handler interface {
 	GetPlayer(http.ResponseWriter, *http.Request)
 	UpdatePlayer(http.ResponseWriter, *http.Request)
 	UploadAttachment(http.ResponseWriter, *http.Request)
+	DownloadAttachment(http.ResponseWriter, *http.Request)
 	Shutdown(ctx context.Context) error
 	Health(ctx context.Context) error
 }
@@ -107,7 +109,7 @@ func (h handlerImpl) UploadAttachment(w http.ResponseWriter, r *http.Request) {
 		Data:       b,
 	}
 
-	err = h.s.Upload(r.Context(), u)
+	err = h.s.Upload(r.Context(), &u)
 	if err != nil {
 		writeErrResponse(w, http.StatusInternalServerError, err)
 		return
@@ -118,6 +120,49 @@ func (h handlerImpl) UploadAttachment(w http.ResponseWriter, r *http.Request) {
 		Description: "Upload complete for " + email,
 	})
 	return
+}
+
+func (h handlerImpl) DownloadAttachment(w http.ResponseWriter, r *http.Request) {
+
+	email := r.Header.Get("X-Pub-Email")
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		writeErrResponse(w, http.StatusBadRequest, err)
+		return
+	}
+
+	cat := r.Header.Get("X-Pub-File-Category")
+	if cat == "" {
+		writeErrResponse(w, http.StatusBadRequest, errors.New("missing headers"))
+		return
+	}
+
+	fn := r.Header.Get("X-Pub-File-Name")
+	if fn == "" {
+		writeErrResponse(w, http.StatusBadRequest, errors.New("missing headers"))
+		return
+	}
+
+	download, err := h.s.Download(r.Context(), email, cat, fn)
+	if err != nil {
+		writeErrResponse(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if download == nil {
+		writeErrResponse(w, http.StatusNotFound, errors.New("file not found"))
+		return
+	}
+
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+download.Filename+"\"")
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(download.Data)))
+
+	if _, err = w.Write(download.Data); err != nil {
+		http.Error(w, "failed to send file", http.StatusInternalServerError)
+		return
+	}
+
 }
 
 func (h handlerImpl) Shutdown(ctx context.Context) error {

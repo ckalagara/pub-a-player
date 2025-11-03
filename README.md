@@ -49,7 +49,7 @@ curl --location --request POST 'http://localhost:8086/player' \
 }'
 ```
 
-#### UPLOADS
+#### UPLOAD
 
 ```curl
 curl --location --request POST 'http://localhost:8086/attachment' \
@@ -61,5 +61,17 @@ curl --location --request POST 'http://localhost:8086/attachment' \
     "status": "Success",
     "description": "Upload complete for johndoe@example.com"
 }
+```
+
+#### DOWNLOAD
+
+```curl
+ % curl --location --request GET 'http://localhost:8086/attachment' \
+--header 'x-pub-email: johndoe@example.com' \
+--header 'x-pub-file-category: cv' \
+--header 'x-pub-file-name: coverLetter.doc' -o coverLetter.doc
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 14848  100 14848    0     0  6087k      0 --:--:-- --:--:-- --:--:-- 7250k
 ```
 

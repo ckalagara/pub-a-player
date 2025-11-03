@@ -80,6 +80,7 @@ func appMux(ctx context.Context, h core.Handler) *http.ServeMux {
 	mux.HandleFunc("PUT /player", h.UpdatePlayer)
 
 	mux.HandleFunc("POST /attachment", h.UploadAttachment)
+	mux.HandleFunc("GET /attachment", h.DownloadAttachment)
 
 	return mux
 }

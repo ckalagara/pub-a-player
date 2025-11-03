@@ -15,7 +15,8 @@ type store interface {
 	Update(ctx context.Context, p Player) error
 	Shutdown(ctx context.Context) error
 	Health(ctx context.Context) error
-	Upload(ctx context.Context, upload Upload) error
+	Upload(ctx context.Context, upload *Upload) error
+	Download(ctx context.Context, email, uploadType, filename string) (*Upload, error)
 }
 
 func newStorePostgres(_ context.Context, db *gorm.DB) store {
@@ -33,8 +34,22 @@ type storePostgresImpl struct {
 	client *gorm.DB
 }
 
-func (s storePostgresImpl) Upload(ctx context.Context, upload Upload) error {
+func (s storePostgresImpl) Upload(ctx context.Context, upload *Upload) error {
 	return s.client.WithContext(ctx).Create(&upload).Error
+}
+
+func (s storePostgresImpl) Download(ctx context.Context, email, uploadType, filename string) (*Upload, error) {
+	var upload Upload
+	err := s.client.WithContext(ctx).Where("email = ? AND upload_type = ? AND filename = ?", email, uploadType, filename).First(&upload).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Wrap(err, "upload not found")
+		}
+		return nil, err
+	}
+
+	return &upload, err
 }
 
 func (s storePostgresImpl) Shutdown(ctx context.Context) error {
