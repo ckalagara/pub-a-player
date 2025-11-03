@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/mail"
 
@@ -78,11 +79,14 @@ func (h handlerImpl) UploadAttachment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cat := r.Header.Get("X-Pub-File-Category")
-	file, hdrs, err := r.FormFile("file")
+	file, hdrs, err := r.FormFile("File")
 	if err != nil {
+		writeErrResponse(w, http.StatusBadRequest, err)
 		return
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		_ = file.Close()
+	}(file)
 
 	fn := hdrs.Filename
 
@@ -108,6 +112,11 @@ func (h handlerImpl) UploadAttachment(w http.ResponseWriter, r *http.Request) {
 		writeErrResponse(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	writeJson(w, http.StatusOK, commons.GenericResponse{
+		Status:      "Success",
+		Description: "Upload complete for " + email,
+	})
 	return
 }
 

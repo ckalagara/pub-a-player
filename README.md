@@ -48,3 +48,18 @@ curl --location --request POST 'http://localhost:8086/player' \
   "score": 1500.75
 }'
 ```
+
+#### UPLOADS
+
+```curl
+curl --location --request POST 'http://localhost:8086/attachment' \
+--header 'x-pub-email: johndoe@example.com' \
+--header 'X-Pub-File-Category: cv' \
+--form 'File=@"/Users/i/Documents/coverLetter.doc"'
+
+{
+    "status": "Success",
+    "description": "Upload complete for johndoe@example.com"
+}
+```
+
