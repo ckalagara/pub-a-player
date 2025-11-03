@@ -94,3 +94,9 @@ Please run mockery to update the mocks for unitesting
 2025-11-03T13:12:47.299119000-06:00 INF Writing template to file file=/Users/i/Src/pub-a-player/core/mocks.go version=v3.5.5
 ```
 
+## Docker
+
+```bash
+docker build -t pub-a-player .  
+docker run --network app-network --name pub-a-player -p 8089:8089 pub-a-player
+```
