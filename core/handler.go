@@ -8,6 +8,7 @@ import (
 	"net/mail"
 
 	"github.com/ckalagara/pub-a-player/commons"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -61,8 +62,52 @@ func (h handlerImpl) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h handlerImpl) UploadAttachment(_ http.ResponseWriter, _ *http.Request) {
-	//TODO implement me
+func (h handlerImpl) UploadAttachment(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10 MB
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		writeErrResponse(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// pull email
+	email := r.Header.Get("X-Pub-Email")
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		writeErrResponse(w, http.StatusBadRequest, err)
+		return
+	}
+
+	cat := r.Header.Get("X-Pub-File-Category")
+	file, hdrs, err := r.FormFile("file")
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	fn := hdrs.Filename
+
+	if fn == "" || cat == "" {
+		writeErrResponse(w, http.StatusBadRequest, errors.New("missing headers"))
+		return
+	}
+
+	b := make([]byte, hdrs.Size)
+	if _, err = file.Read(b); err != nil {
+		writeErrResponse(w, http.StatusBadRequest, err)
+	}
+
+	u := Upload{
+		Email:      email,
+		UploadType: cat,
+		Filename:   fn,
+		Data:       b,
+	}
+
+	err = h.s.Upload(r.Context(), u)
+	if err != nil {
+		writeErrResponse(w, http.StatusInternalServerError, err)
+		return
+	}
 	return
 }
 

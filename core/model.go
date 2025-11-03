@@ -18,3 +18,11 @@ type Player struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
+
+type Upload struct {
+	ID         uint   `gorm:"primaryKey"`
+	Email      string `gorm:"not null;index:idx_email_type_filename,unique"` // part of unique composite key
+	UploadType string `gorm:"not null;index:idx_email_type_filename,unique"` // part of unique composite key
+	Filename   string `gorm:"not null;index:idx_email_type_filename,unique"` // part of unique composite key
+	Data       []byte `gorm:"not null"`
+}

@@ -15,10 +15,11 @@ type store interface {
 	Update(ctx context.Context, p Player) error
 	Shutdown(ctx context.Context) error
 	Health(ctx context.Context) error
+	Upload(ctx context.Context, upload Upload) error
 }
 
 func newStorePostgres(_ context.Context, db *gorm.DB) store {
-	err := db.AutoMigrate(&Player{})
+	err := db.AutoMigrate(&Player{}, &Upload{})
 	if err != nil {
 		log.Fatal(err)
 		return nil
@@ -30,6 +31,10 @@ func newStorePostgres(_ context.Context, db *gorm.DB) store {
 
 type storePostgresImpl struct {
 	client *gorm.DB
+}
+
+func (s storePostgresImpl) Upload(ctx context.Context, upload Upload) error {
+	return s.client.WithContext(ctx).Create(&upload).Error
 }
 
 func (s storePostgresImpl) Shutdown(ctx context.Context) error {
